@@ -1,0 +1,30 @@
+body {
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    height: 100vh;
+    margin: 0;
+}
+
+.piece {
+    width: 45px;
+    height: 45px;
+    background-image: url('images/chess_pieces.svg');
+    margin: 5px;
+}
+
+.white-king { background-position: 0 0; }
+.white-queen { background-position: -45px 0; }
+.white-bishop { background-position: -90px 0; }
+.white-knight { background-position: -135px 0; }
+.white-rook { background-position: -180px 0; }
+.white-pawn { background-position: -225px 0; }
+
+.black-king { background-position: 0 -45px; }
+.black-queen { background-position: -45px -45px; }
+.black-bishop { background-position: -90px -45px; }
+.black-knight { background-position: -135px -45px; }
+.black-rook { background-position: -180px -45px; }
+.black-pawn { background-position: -225px -45px; }
