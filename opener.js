@@ -38,6 +38,31 @@ function createChessboard() {
     }, 500);
 }
 
+function setupPieces() {
+    const startPosition = [
+        ['white-rook', 'white-knight', 'white-bishop', 'white-queen', 'white-king', 'white-bishop', 'white-knight', 'white-rook'],
+        ['white-pawn', 'white-pawn', 'white-pawn', 'white-pawn', 'white-pawn', 'white-pawn', 'white-pawn', 'white-pawn'],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        ['black-pawn', 'black-pawn', 'black-pawn', 'black-pawn', 'black-pawn', 'black-pawn', 'black-pawn', 'black-pawn'],
+        ['black-rook', 'black-knight', 'black-bishop', 'black-queen', 'black-king', 'black-bishop', 'black-knight', 'black-rook']
+    ];
+    
+    for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+            const piece = startPosition[row][col];
+            if (piece) {
+                const squareName = files[col] + (row + 1);
+                if (windows[squareName]) {
+                    windows[squareName].postMessage({ type: 'setPiece', piece: piece }, '*');
+                }
+            }
+        }
+    }
+}
+
 function closeChessboard() {
     for (const name in windows) {
         if (windows.hasOwnProperty(name)) {
