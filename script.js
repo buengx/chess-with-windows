@@ -34,6 +34,8 @@ createChessboardButton.addEventListener('click', () => {
     gameMode = document.querySelector('input[name="gameMode"]:checked').value;
     aiEnabled = document.getElementById('aiEnabled').checked;
     
+    console.log('Creating board with mode:', gameMode, 'AI:', aiEnabled);
+    
     const screenWidth = window.screen.width;
     const screenHeight = window.screen.height;
 
@@ -51,9 +53,12 @@ createChessboardButton.addEventListener('click', () => {
             
             // Skip window creation in fog mode for non-visible squares
             if (gameMode === 'fog') {
+                console.log('Skipping window for', name, 'in fog mode');
                 // Will be created dynamically based on piece positions
                 continue;
             }
+            
+            console.log('Creating window for', name, 'mode:', gameMode);
 
             const features = `popup,width=${squareSize},height=${squareSize},left=${x},top=${y},menubar=no,toolbar=no,location=no,status=no,resizable=no,scrollbars=no`;
             const pieceWindow = window.open('', name, features);
