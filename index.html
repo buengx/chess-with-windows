@@ -4,28 +4,202 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chess With Windows</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        p {
+            color: #4a5568;
+            text-align: center;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .settings-section {
+            margin: 30px 0;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        fieldset {
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 15px 20px;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        legend {
+            color: #667eea;
+            font-weight: bold;
+            padding: 0 10px;
+            font-size: 1.1em;
+        }
+        
+        label {
+            display: block;
+            margin: 8px 0;
+            color: #2d3748;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        label:hover {
+            color: #667eea;
+        }
+        
+        input[type="radio"],
+        input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        
+        .ai-option {
+            display: flex;
+            align-items: center;
+            border: 2px solid #764ba2;
+            border-radius: 10px;
+            padding: 15px 20px;
+            background: rgba(118, 75, 162, 0.05);
+        }
+        
+        .ai-option label {
+            margin: 0;
+            font-weight: bold;
+            color: #764ba2;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        button {
+            font-size: 1.1em;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        #create-chessboard {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        #create-chessboard:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        #create-chessboard:active {
+            transform: translateY(0);
+        }
+        
+        #kill-chessboard {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+        }
+        
+        #kill-chessboard:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
+        }
+        
+        #kill-chessboard:active {
+            transform: translateY(0);
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .settings-section {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Chess With Browser Windows</h1>
-    <p>This is a chess game where the chessboard and its pieces are represented by individual browser windows.</p>
-    <p>Click the button below to create the chessboard. You may need to allow multiple popups in your browser settings.</p>
-    
-    <div style="margin: 20px 0;">
-        <fieldset style="display: inline-block; padding: 10px;">
-            <legend>Game Mode</legend>
-            <label><input type="radio" name="gameMode" value="normal" checked> Normal</label><br>
-            <label><input type="radio" name="gameMode" value="fog"> Fog of War</label><br>
-            <label><input type="radio" name="gameMode" value="unused"> Unused Option</label>
-        </fieldset>
+    <div class="container">
+        <h1>♔ Chess With Browser Windows ♚</h1>
+        <p>This is a chess game where the chessboard and its pieces are represented by individual browser windows.</p>
+        <p>Click the button below to create the chessboard. You may need to allow multiple popups in your browser settings.</p>
         
-        <div style="display: inline-block; margin-left: 20px;">
-            <label><input type="checkbox" id="aiEnabled"> Enable AI (Min-Max)</label>
+        <div class="settings-section">
+            <fieldset>
+                <legend>Game Mode</legend>
+                <label><input type="radio" name="gameMode" value="normal" checked> Normal</label>
+                <label><input type="radio" name="gameMode" value="fog"> Fog of War</label>
+                <label><input type="radio" name="gameMode" value="unused"> Unused Option</label>
+            </fieldset>
+            
+            <div class="ai-option">
+                <label><input type="checkbox" id="aiEnabled"> Enable AI (Min-Max)</label>
+            </div>
+        </div>
+        
+        <div class="button-group">
+            <button id="create-chessboard">Create Chessboard</button>
+            <button id="kill-chessboard">Close All</button>
         </div>
     </div>
-    
-    <button id="create-chessboard">Create Chessboard</button>
-    <button id="kill-chessboard">Kill Chessboard</button>
     <script src="script.js"></script>
 </body>
 </html>
