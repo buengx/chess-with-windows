@@ -487,15 +487,21 @@ function canPieceAttack(row, col, piece) {
 function isInCheck(color) {
     // Find king position
     let kingRow, kingCol;
+    let foundKing = false;
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
             if (board[r][c] === `${color}-king`) {
                 kingRow = r;
                 kingCol = c;
+                foundKing = true;
                 break;
             }
         }
+        if (foundKing) break;
     }
+    
+    // If king not found, can't be in check
+    if (!foundKing) return false;
     
     // Check if any opponent piece can attack the king
     const opponentColor = color === 'white' ? 'black' : 'white';

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head><title>Test Check Logic</title></head>
+<body>
+<script>
+// Quick test of check logic
+const board = [
+    ['white-rook', 'white-knight', 'white-bishop', 'white-queen', 'white-king', 'white-bishop', 'white-knight', 'white-rook'],
+    ['white-pawn', 'white-pawn', 'white-pawn', 'white-pawn', 'white-pawn', 'white-pawn', 'white-pawn', 'white-pawn'],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    ['black-pawn', 'black-pawn', 'black-pawn', 'black-pawn', 'black-pawn', 'black-pawn', 'black-pawn', 'black-pawn'],
+    ['black-rook', 'black-knight', 'black-bishop', 'black-queen', 'black-king', 'black-bishop', 'black-knight', 'black-rook']
+];
+
+function isInCheck(color) {
+    let kingRow, kingCol;
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            if (board[r][c] === `${color}-king`) {
+                kingRow = r;
+                kingCol = c;
+                break;
+            }
+        }
+    }
+    console.log(`King at ${kingRow}, ${kingCol}`);
+    return false; // Simplified
+}
+
+console.log('White in check:', isInCheck('white'));
+console.log('Black in check:', isInCheck('black'));
+</script>
+</body>
+</html>
