@@ -29,7 +29,7 @@ createChessboardButton.addEventListener('click', () => {
 
             if (pieceWindow) {
                 const color = (row + col) % 2 === 0 ? '#769656' : '#ebecd0';
-                pieceWindow.document.write(`<!DOCTYPE html><html lang="en"><head><title>${name}</title><style>body { margin: 0; background-color: ${color}; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }</style></head><body><img id="piece" style="width: 40px; height: 40px; display: none;"></body></html>`);
+                pieceWindow.document.write(`<!DOCTYPE html><html lang="en"><head><title>${name}</title><style>body { margin: 0; background-color: ${color}; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; padding: 1%; box-sizing: border-box; }</style></head><body><img id="piece" style="width: 100%; height: 100%; display: none; object-fit: contain;"></body></html>`);
                 windows[name] = pieceWindow;
             }
         }
