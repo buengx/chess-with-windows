@@ -136,6 +136,9 @@ function handleSquareClick(squareName) {
             if (pieceColor === currentTurn) {
                 selectedSquare = { row, col, name: squareName };
                 windows[squareName].document.body.style.border = '3px solid yellow';
+                
+                // Show available moves
+                showAvailableMoves(row, col, piece);
             }
         }
     } else {
@@ -146,9 +149,20 @@ function handleSquareClick(squareName) {
         
         const movingPiece = board[fromRow][fromCol];
         
+        // Clear move indicators
+        clearMoveIndicators();
+        
         // Validate the move
         if (!isValidMove(fromRow, fromCol, row, col, movingPiece)) {
             // Invalid move - just deselect
+            windows[fromSquare].document.body.style.border = '';
+            selectedSquare = null;
+            return;
+        }
+        
+        // Check if move would leave king in check
+        if (!isMoveSafe(fromRow, fromCol, row, col, currentTurn)) {
+            // Move would leave king in check - deselect
             windows[fromSquare].document.body.style.border = '';
             selectedSquare = null;
             return;
@@ -303,6 +317,12 @@ function isValidMove(fromRow, fromCol, toRow, toCol, piece) {
             if (absRowDiff <= 1 && absColDiff <= 1) {
                 return true;
             }
+            // Castling
+            if (absRowDiff === 0 && absColDiff === 2) {
+                const color = piece.split('-')[0];
+                const kingSide = colDiff > 0;
+                return canCastle(color, kingSide);
+            }
             return false;
     }
     
@@ -374,7 +394,10 @@ function getAllPossibleMoves(color) {
                 for (let toRow = 0; toRow < 8; toRow++) {
                     for (let toCol = 0; toCol < 8; toCol++) {
                         if (isValidMove(fromRow, fromCol, toRow, toCol, piece)) {
-                            moves.push({ fromRow, fromCol, toRow, toCol, piece });
+                            // Only include move if it doesn't leave king in check
+                            if (isMoveSafe(fromRow, fromCol, toRow, toCol, color)) {
+                                moves.push({ fromRow, fromCol, toRow, toCol, piece });
+                            }
                         }
                     }
                 }
@@ -395,4 +418,141 @@ function simulateMove(fromRow, fromCol, toRow, toCol) {
     setTimeout(() => {
         handleSquareClick(toSquare);
     }, 300);
+}
+
+// Show available moves with yellow and red dots
+function showAvailableMoves(fromRow, fromCol, piece) {
+    const opponentColor = currentTurn === 'white' ? 'black' : 'white';
+    
+    for (let toRow = 0; toRow < 8; toRow++) {
+        for (let toCol = 0; toCol < 8; toCol++) {
+            const squareName = files[toCol] + (toRow + 1);
+            if (!windows[squareName]) continue;
+            
+            const isValid = isValidMove(fromRow, fromCol, toRow, toCol, piece);
+            const wouldBeInCheck = !isMoveSafe(fromRow, fromCol, toRow, toCol, currentTurn);
+            
+            if (isValid && !wouldBeInCheck) {
+                // Yellow dot for valid moves
+                addDotToWindow(squareName, 'yellow');
+            } else if (board[toRow][toCol] && board[toRow][toCol].startsWith(opponentColor)) {
+                // Check if opponent can attack this square
+                const opponentPiece = board[toRow][toCol];
+                if (canPieceAttack(toRow, toCol, opponentPiece)) {
+                    addDotToWindow(squareName, 'red');
+                }
+            }
+        }
+    }
+}
+
+function addDotToWindow(squareName, color) {
+    if (!windows[squareName]) return;
+    const doc = windows[squareName].document;
+    const existingDot = doc.querySelector('.move-indicator');
+    if (!existingDot) {
+        const dot = doc.createElement('div');
+        dot.className = 'move-indicator';
+        dot.style.cssText = `position: absolute; width: 10px; height: 10px; background-color: ${color}; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;`;
+        doc.body.appendChild(dot);
+    }
+}
+
+function clearMoveIndicators() {
+    for (const name in windows) {
+        if (windows[name]) {
+            const doc = windows[name].document;
+            const dots = doc.querySelectorAll('.move-indicator');
+            dots.forEach(dot => dot.remove());
+        }
+    }
+}
+
+function canPieceAttack(row, col, piece) {
+    // Check if this piece can attack any opponent piece
+    const targetColor = currentTurn; // Check if opponent can attack current player's pieces
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            if (board[r][c] && board[r][c].startsWith(targetColor)) {
+                if (isValidMove(row, col, r, c, piece)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+// Check detection
+function isInCheck(color) {
+    // Find king position
+    let kingRow, kingCol;
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            if (board[r][c] === `${color}-king`) {
+                kingRow = r;
+                kingCol = c;
+                break;
+            }
+        }
+    }
+    
+    // Check if any opponent piece can attack the king
+    const opponentColor = color === 'white' ? 'black' : 'white';
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            const piece = board[r][c];
+            if (piece && piece.startsWith(opponentColor)) {
+                if (isValidMove(r, c, kingRow, kingCol, piece)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+function isMoveSafe(fromRow, fromCol, toRow, toCol, color) {
+    // Simulate the move
+    const originalPiece = board[fromRow][fromCol];
+    const capturedPiece = board[toRow][toCol];
+    
+    board[toRow][toCol] = originalPiece;
+    board[fromRow][fromCol] = null;
+    
+    const safe = !isInCheck(color);
+    
+    // Undo the move
+    board[fromRow][fromCol] = originalPiece;
+    board[toRow][toCol] = capturedPiece;
+    
+    return safe;
+}
+
+// Castling
+function canCastle(color, kingSide) {
+    const row = color === 'white' ? 0 : 7;
+    const kingCol = 4;
+    const rookCol = kingSide ? 7 : 0;
+    const direction = kingSide ? 1 : -1;
+    
+    // Check if king and rook are in starting positions
+    if (board[row][kingCol] !== `${color}-king`) return false;
+    if (board[row][rookCol] !== `${color}-rook`) return false;
+    
+    // Check if path is clear
+    const start = Math.min(kingCol, rookCol) + 1;
+    const end = Math.max(kingCol, rookCol);
+    for (let col = start; col < end; col++) {
+        if (board[row][col] !== null) return false;
+    }
+    
+    // Check if king is in check or passes through check
+    if (isInCheck(color)) return false;
+    for (let i = 0; i <= 2; i++) {
+        const testCol = kingCol + (i * direction);
+        if (!isMoveSafe(row, kingCol, row, testCol, color)) return false;
+    }
+    
+    return true;
 }
