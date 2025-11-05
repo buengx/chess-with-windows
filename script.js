@@ -48,6 +48,10 @@ createChessboardButton.addEventListener('click', () => {
             if (pieceWindow) {
                 const color = (row + col) % 2 === 0 ? '#769656' : '#ebecd0';
                 pieceWindow.document.write(`<!DOCTYPE html><html lang="en"><head><title>${name}</title><style>body { margin: 0; background-color: ${color}; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; padding: 1%; box-sizing: border-box; cursor: pointer; }</style></head><body><img id="piece" style="width: 100%; height: 100%; display: none; object-fit: contain;"></body></html>`);
+                
+                // Force consistent window size
+                pieceWindow.resizeTo(40, 152);
+                
                 windows[name] = pieceWindow;
                 
                 pieceWindow.addEventListener('click', () => {
@@ -57,7 +61,13 @@ createChessboardButton.addEventListener('click', () => {
         }
     }
     
+    // Store actual window dimensions after creation
     setTimeout(() => {
+        const firstWindow = windows['a1'];
+        if (firstWindow) {
+            window.actualSquareWidth = firstWindow.outerWidth;
+            window.actualSquareHeight = firstWindow.outerHeight;
+        }
         setupPieces();
     }, 100);
 });
@@ -109,14 +119,81 @@ function handleSquareClick(squareName) {
     } else {
         const fromRow = selectedSquare.row;
         const fromCol = selectedSquare.col;
+        const fromSquare = selectedSquare.name;
+        const toSquare = squareName;
         
-        board[row][col] = board[fromRow][fromCol];
+        // Get positions of both windows
+        const fromWindow = windows[fromSquare];
+        const toWindow = windows[toSquare];
+        const fromX = fromWindow.screenX;
+        const fromY = fromWindow.screenY;
+        const toX = toWindow.screenX;
+        const toY = toWindow.screenY;
+        
+        // Use stored dimensions from original board creation
+        const actualWidth = window.actualSquareWidth || squareSize;
+        const actualHeight = window.actualSquareHeight || squareSize;
+        
+        // Get the piece being moved and destination color
+        const movingPiece = board[fromRow][fromCol];
+        const toColor = (row + col) % 2 === 0 ? '#769656' : '#ebecd0';
+        
+        // Clear selection border
+        fromWindow.document.body.style.border = '';
+        
+        // Remove piece from source square
+        const fromImg = fromWindow.document.getElementById('piece');
+        if (fromImg) {
+            fromImg.style.display = 'none';
+        }
+        
+        // Close destination window
+        toWindow.close();
+        delete windows[toSquare];
+        
+        // Create new window at source position with piece
+        const features = `popup,width=${actualWidth},height=${actualHeight},left=${fromX},top=${fromY},menubar=no,toolbar=no,location=no,status=no,resizable=no,scrollbars=no`;
+        const movingWindow = window.open('', toSquare, features);
+        
+        if (movingWindow) {
+            movingWindow.document.write(`<!DOCTYPE html><html lang="en"><head><title>${toSquare}</title><style>body { margin: 0; background-color: ${toColor}; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; padding: 1%; box-sizing: border-box; cursor: pointer; }</style></head><body><img id="piece" src="${pieceMap[movingPiece]}" style="width: 100%; height: 100%; object-fit: contain;"></body></html>`);
+            
+            // Force same size as other windows
+            movingWindow.resizeTo(40, 152);
+            // Animate the window movement
+            let currentX = fromX;
+            let currentY = fromY;
+            const steps = 20;
+            const deltaX = (toX - fromX) / steps;
+            const deltaY = (toY - fromY) / steps;
+            let step = 0;
+            
+            const animate = setInterval(() => {
+                if (step >= steps) {
+                    clearInterval(animate);
+                    movingWindow.moveTo(toX, toY);
+                    movingWindow.resizeTo(40, 152);
+                } else {
+                    currentX += deltaX;
+                    currentY += deltaY;
+                    movingWindow.moveTo(Math.round(currentX), Math.round(currentY));
+                    movingWindow.resizeTo(40, 152); // Maintain size during movement
+                    step++;
+                }
+            }, 20);
+            
+            // Update windows registry and add click handler
+            windows[toSquare] = movingWindow;
+            movingWindow.addEventListener('click', () => {
+                handleSquareClick(toSquare);
+            });
+        }
+        
+        // Update board state
+        board[row][col] = movingPiece;
         board[fromRow][fromCol] = null;
         
-        windows[selectedSquare.name].document.body.style.border = '';
         selectedSquare = null;
-        
-        updateDisplay();
     }
 }
 
