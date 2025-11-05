@@ -25,7 +25,7 @@ function createChessboard() {
             const pieceWindow = window.open('square.html', name, features);
 
             if (pieceWindow) {
-                const color = (row + col) % 2 === 0 ? '#769656' : '#eeeed2';
+                const color = (row + col) % 2 === 0 ? '#769656' : '#ebecd0';
                 pieceWindow.squareColor = color;
                 pieceWindow.squareName = name;
                 windows[name] = pieceWindow;
