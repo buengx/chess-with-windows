@@ -8,6 +8,24 @@ const spacing = 100;
 
 const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
+let board = [];
+let selectedSquare = null;
+
+const pieceMap = {
+    'white-pawn': 'pieces/WHITE_CHESS_PAWN.svg',
+    'white-rook': 'pieces/WHITE_CHESS_ROOK.svg',
+    'white-knight': 'pieces/WHITE_CHESS_KNIGHT.svg',
+    'white-bishop': 'pieces/WHITE_CHESS_BISHOP.svg',
+    'white-queen': 'pieces/WHITE_CHESS_QUEEN.svg',
+    'white-king': 'pieces/WHITE_CHESS_KING.svg',
+    'black-pawn': 'pieces/BLACK_CHESS_PAWN.svg',
+    'black-rook': 'pieces/BLACK_CHESS_ROOK.svg',
+    'black-knight': 'pieces/BLACK_CHESS_KNIGHT.svg',
+    'black-bishop': 'pieces/BLACK_CHESS_BISHOP.svg',
+    'black-queen': 'pieces/BLACK_CHESS_QUEEN.svg',
+    'black-king': 'pieces/BLACK_CHESS_KING.svg'
+};
+
 createChessboardButton.addEventListener('click', () => {
     const screenWidth = window.screen.width;
     const screenHeight = window.screen.height;
@@ -29,8 +47,12 @@ createChessboardButton.addEventListener('click', () => {
 
             if (pieceWindow) {
                 const color = (row + col) % 2 === 0 ? '#769656' : '#ebecd0';
-                pieceWindow.document.write(`<!DOCTYPE html><html lang="en"><head><title>${name}</title><style>body { margin: 0; background-color: ${color}; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; padding: 1%; box-sizing: border-box; }</style></head><body><img id="piece" style="width: 100%; height: 100%; display: none; object-fit: contain;"></body></html>`);
+                pieceWindow.document.write(`<!DOCTYPE html><html lang="en"><head><title>${name}</title><style>body { margin: 0; background-color: ${color}; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; padding: 1%; box-sizing: border-box; cursor: pointer; }</style></head><body><img id="piece" style="width: 100%; height: 100%; display: none; object-fit: contain;"></body></html>`);
                 windows[name] = pieceWindow;
+                
+                pieceWindow.addEventListener('click', () => {
+                    handleSquareClick(name);
+                });
             }
         }
     }
@@ -41,7 +63,7 @@ createChessboardButton.addEventListener('click', () => {
 });
 
 function setupPieces() {
-    const startPosition = [
+    board = [
         ['white-rook', 'white-knight', 'white-bishop', 'white-queen', 'white-king', 'white-bishop', 'white-knight', 'white-rook'],
         ['white-pawn', 'white-pawn', 'white-pawn', 'white-pawn', 'white-pawn', 'white-pawn', 'white-pawn', 'white-pawn'],
         [null, null, null, null, null, null, null, null],
@@ -52,35 +74,49 @@ function setupPieces() {
         ['black-rook', 'black-knight', 'black-bishop', 'black-queen', 'black-king', 'black-bishop', 'black-knight', 'black-rook']
     ];
     
-    const pieceMap = {
-        'white-pawn': 'pieces/WHITE_CHESS_PAWN.svg',
-        'white-rook': 'pieces/WHITE_CHESS_ROOK.svg',
-        'white-knight': 'pieces/WHITE_CHESS_KNIGHT.svg',
-        'white-bishop': 'pieces/WHITE_CHESS_BISHOP.svg',
-        'white-queen': 'pieces/WHITE_CHESS_QUEEN.svg',
-        'white-king': 'pieces/WHITE_CHESS_KING.svg',
-        'black-pawn': 'pieces/BLACK_CHESS_PAWN.svg',
-        'black-rook': 'pieces/BLACK_CHESS_ROOK.svg',
-        'black-knight': 'pieces/BLACK_CHESS_KNIGHT.svg',
-        'black-bishop': 'pieces/BLACK_CHESS_BISHOP.svg',
-        'black-queen': 'pieces/BLACK_CHESS_QUEEN.svg',
-        'black-king': 'pieces/BLACK_CHESS_KING.svg'
-    };
-    
+    updateDisplay();
+}
+
+function updateDisplay() {
     for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 8; col++) {
-            const piece = startPosition[row][col];
-            if (piece) {
-                const squareName = files[col] + (row + 1);
-                if (windows[squareName]) {
-                    const img = windows[squareName].document.getElementById('piece');
-                    if (img) {
+            const piece = board[row][col];
+            const squareName = files[col] + (row + 1);
+            if (windows[squareName]) {
+                const img = windows[squareName].document.getElementById('piece');
+                if (img) {
+                    if (piece) {
                         img.src = pieceMap[piece];
                         img.style.display = 'block';
+                    } else {
+                        img.style.display = 'none';
                     }
                 }
             }
         }
+    }
+}
+
+function handleSquareClick(squareName) {
+    const col = files.indexOf(squareName[0]);
+    const row = parseInt(squareName[1]) - 1;
+    
+    if (selectedSquare === null) {
+        if (board[row][col] !== null) {
+            selectedSquare = { row, col, name: squareName };
+            windows[squareName].document.body.style.border = '3px solid yellow';
+        }
+    } else {
+        const fromRow = selectedSquare.row;
+        const fromCol = selectedSquare.col;
+        
+        board[row][col] = board[fromRow][fromCol];
+        board[fromRow][fromCol] = null;
+        
+        windows[selectedSquare.name].document.body.style.border = '';
+        selectedSquare = null;
+        
+        updateDisplay();
     }
 }
 
