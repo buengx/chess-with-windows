@@ -10,6 +10,7 @@ const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
 let board = [];
 let selectedSquare = null;
+let currentTurn = 'white'; // Track whose turn it is
 
 const pieceMap = {
     'white-pawn': 'pieces/WHITE_CHESS_PAWN.svg',
@@ -112,15 +113,29 @@ function handleSquareClick(squareName) {
     const row = parseInt(squareName[1]) - 1;
     
     if (selectedSquare === null) {
-        if (board[row][col] !== null) {
-            selectedSquare = { row, col, name: squareName };
-            windows[squareName].document.body.style.border = '3px solid yellow';
+        const piece = board[row][col];
+        if (piece !== null) {
+            const pieceColor = piece.split('-')[0];
+            if (pieceColor === currentTurn) {
+                selectedSquare = { row, col, name: squareName };
+                windows[squareName].document.body.style.border = '3px solid yellow';
+            }
         }
     } else {
         const fromRow = selectedSquare.row;
         const fromCol = selectedSquare.col;
         const fromSquare = selectedSquare.name;
         const toSquare = squareName;
+        
+        const movingPiece = board[fromRow][fromCol];
+        
+        // Validate the move
+        if (!isValidMove(fromRow, fromCol, row, col, movingPiece)) {
+            // Invalid move - just deselect
+            windows[fromSquare].document.body.style.border = '';
+            selectedSquare = null;
+            return;
+        }
         
         // Get positions of both windows
         const fromWindow = windows[fromSquare];
@@ -134,8 +149,7 @@ function handleSquareClick(squareName) {
         const actualWidth = window.actualSquareWidth || squareSize;
         const actualHeight = window.actualSquareHeight || squareSize;
         
-        // Get the piece being moved and destination color
-        const movingPiece = board[fromRow][fromCol];
+        // Get destination color
         const toColor = (row + col) % 2 === 0 ? '#769656' : '#ebecd0';
         
         // Clear selection border
@@ -193,8 +207,102 @@ function handleSquareClick(squareName) {
         board[row][col] = movingPiece;
         board[fromRow][fromCol] = null;
         
+        // Switch turns
+        currentTurn = currentTurn === 'white' ? 'black' : 'white';
+        
         selectedSquare = null;
     }
+}
+
+function isValidMove(fromRow, fromCol, toRow, toCol, piece) {
+    // Can't move to same square
+    if (fromRow === toRow && fromCol === toCol) return false;
+    
+    // Can't capture own piece
+    const targetPiece = board[toRow][toCol];
+    if (targetPiece !== null) {
+        const movingColor = piece.split('-')[0];
+        const targetColor = targetPiece.split('-')[0];
+        if (movingColor === targetColor) return false;
+    }
+    
+    const pieceType = piece.split('-')[1];
+    const rowDiff = toRow - fromRow;
+    const colDiff = toCol - fromCol;
+    const absRowDiff = Math.abs(rowDiff);
+    const absColDiff = Math.abs(colDiff);
+    
+    switch(pieceType) {
+        case 'pawn':
+            const direction = piece.startsWith('white') ? 1 : -1;
+            const startRow = piece.startsWith('white') ? 1 : 6;
+            
+            // Move forward one square
+            if (colDiff === 0 && rowDiff === direction && targetPiece === null) {
+                return true;
+            }
+            
+            // Move forward two squares from start
+            if (colDiff === 0 && rowDiff === 2 * direction && fromRow === startRow && targetPiece === null && board[fromRow + direction][fromCol] === null) {
+                return true;
+            }
+            
+            // Capture diagonally
+            if (absColDiff === 1 && rowDiff === direction && targetPiece !== null) {
+                return true;
+            }
+            return false;
+            
+        case 'rook':
+            if (rowDiff === 0 || colDiff === 0) {
+                return isPathClear(fromRow, fromCol, toRow, toCol);
+            }
+            return false;
+            
+        case 'knight':
+            if ((absRowDiff === 2 && absColDiff === 1) || (absRowDiff === 1 && absColDiff === 2)) {
+                return true;
+            }
+            return false;
+            
+        case 'bishop':
+            if (absRowDiff === absColDiff) {
+                return isPathClear(fromRow, fromCol, toRow, toCol);
+            }
+            return false;
+            
+        case 'queen':
+            if (rowDiff === 0 || colDiff === 0 || absRowDiff === absColDiff) {
+                return isPathClear(fromRow, fromCol, toRow, toCol);
+            }
+            return false;
+            
+        case 'king':
+            if (absRowDiff <= 1 && absColDiff <= 1) {
+                return true;
+            }
+            return false;
+    }
+    
+    return false;
+}
+
+function isPathClear(fromRow, fromCol, toRow, toCol) {
+    const rowStep = toRow > fromRow ? 1 : (toRow < fromRow ? -1 : 0);
+    const colStep = toCol > fromCol ? 1 : (toCol < fromCol ? -1 : 0);
+    
+    let currentRow = fromRow + rowStep;
+    let currentCol = fromCol + colStep;
+    
+    while (currentRow !== toRow || currentCol !== toCol) {
+        if (board[currentRow][currentCol] !== null) {
+            return false;
+        }
+        currentRow += rowStep;
+        currentCol += colStep;
+    }
+    
+    return true;
 }
 
 killChessboardButton.addEventListener('click', () => {
