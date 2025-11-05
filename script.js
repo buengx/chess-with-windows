@@ -238,6 +238,18 @@ function handleSquareClick(squareName) {
         board[row][col] = movingPiece;
         board[fromRow][fromCol] = null;
         
+        // Check for pawn promotion
+        const pieceType = movingPiece.split('-')[1];
+        const pieceColor = movingPiece.split('-')[0];
+        if (pieceType === 'pawn') {
+            const promotionRow = pieceColor === 'white' ? 7 : 0;
+            if (row === promotionRow) {
+                // Show promotion UI in the window
+                handlePromotion(toSquare, row, col, pieceColor);
+                return; // Don't switch turns yet
+            }
+        }
+        
         // Switch turns
         currentTurn = currentTurn === 'white' ? 'black' : 'white';
         
@@ -561,4 +573,67 @@ function canCastle(color, kingSide) {
     }
     
     return true;
+}
+
+// Pawn promotion
+function handlePromotion(squareName, row, col, color) {
+    const promotionWindow = windows[squareName];
+    if (!promotionWindow) return;
+    
+    const promotionPieces = ['queen', 'rook', 'bishop', 'knight'];
+    
+    // Widen the window to show all promotion options
+    promotionWindow.resizeTo(180, 152);
+    
+    // Clear the window and show promotion choices
+    const doc = promotionWindow.document;
+    doc.body.innerHTML = '';
+    doc.body.style.display = 'flex';
+    doc.body.style.justifyContent = 'space-around';
+    doc.body.style.alignItems = 'center';
+    doc.body.style.padding = '5px';
+    
+    promotionPieces.forEach(pieceType => {
+        const img = doc.createElement('img');
+        img.src = pieceMap[`${color}-${pieceType}`];
+        img.style.width = '35px';
+        img.style.height = '35px';
+        img.style.cursor = 'pointer';
+        img.style.margin = '2px';
+        img.title = pieceType;
+        
+        img.addEventListener('click', () => {
+            // Set the promoted piece
+            board[row][col] = `${color}-${pieceType}`;
+            
+            // Resize window back to normal
+            promotionWindow.resizeTo(40, 152);
+            
+            // Update the window display
+            doc.body.innerHTML = '';
+            doc.body.style.display = 'flex';
+            doc.body.style.justifyContent = 'center';
+            doc.body.style.alignItems = 'center';
+            doc.body.style.padding = '1%';
+            
+            const pieceImg = doc.createElement('img');
+            pieceImg.id = 'piece';
+            pieceImg.src = pieceMap[`${color}-${pieceType}`];
+            pieceImg.style.width = '100%';
+            pieceImg.style.height = '100%';
+            pieceImg.style.objectFit = 'contain';
+            doc.body.appendChild(pieceImg);
+            
+            // Switch turns after promotion
+            currentTurn = currentTurn === 'white' ? 'black' : 'white';
+            selectedSquare = null;
+            
+            // Trigger AI move if enabled and it's black's turn
+            if (aiEnabled && currentTurn === 'black') {
+                setTimeout(makeAIMove, 500);
+            }
+        });
+        
+        doc.body.appendChild(img);
+    });
 }
