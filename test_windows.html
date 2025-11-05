@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head><title>Test Window Sizes</title></head>
+<body>
+<button onclick="testWindows()">Test Windows</button>
+<div id="output"></div>
+<script>
+function testWindows() {
+    const w1 = window.open('', 'test1', 'popup,width=50,height=50,left=100,top=100');
+    const w2 = window.open('', 'test2', 'popup,width=50,height=50,left=200,top=100');
+    
+    setTimeout(() => {
+        document.getElementById('output').innerHTML = `
+            W1: ${w1.outerWidth}x${w1.outerHeight}<br>
+            W2: ${w2.outerWidth}x${w2.outerHeight}
+        `;
+    }, 100);
+}
+</script>
+</body>
+</html>

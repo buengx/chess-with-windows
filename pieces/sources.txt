@@ -1,0 +1,15 @@
+White pieces:
+https://upload.wikimedia.org/wikipedia/commons/4/40/WHITE_CHESS_PAWN.svg
+https://upload.wikimedia.org/wikipedia/commons/a/a4/WHITE_CHESS_ROOK.svg
+https://upload.wikimedia.org/wikipedia/commons/3/34/WHITE_CHESS_KNIGHT.svg
+https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg (WHITE_CHESS_BISHOP.svg)
+https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg (WHITE_CHESS_KING.svg)
+https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg (WHITE_CHESS_QUEEN.svg)
+
+Black pieces:
+https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg (BLACK_CHESS_PAWN.svg)
+https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg (BLACK_CHESS_ROOK.svg)
+https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg (BLACK_CHESS_KNIGHT.svg)
+https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg (BLACK_CHESS_BISHOP.svg)
+https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg (BLACK_CHESS_KING.svg)
+https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg (BLACK_CHESS_QUEEN.svg)
