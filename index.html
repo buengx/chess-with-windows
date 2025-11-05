@@ -10,6 +10,20 @@
     <h1>Chess With Browser Windows</h1>
     <p>This is a chess game where the chessboard and its pieces are represented by individual browser windows.</p>
     <p>Click the button below to create the chessboard. You may need to allow multiple popups in your browser settings.</p>
+    
+    <div style="margin: 20px 0;">
+        <fieldset style="display: inline-block; padding: 10px;">
+            <legend>Game Mode</legend>
+            <label><input type="radio" name="gameMode" value="normal" checked> Normal</label><br>
+            <label><input type="radio" name="gameMode" value="fog"> Fog of War</label><br>
+            <label><input type="radio" name="gameMode" value="unused"> Unused Option</label>
+        </fieldset>
+        
+        <div style="display: inline-block; margin-left: 20px;">
+            <label><input type="checkbox" id="aiEnabled"> Enable AI (Min-Max)</label>
+        </div>
+    </div>
+    
     <button id="create-chessboard">Create Chessboard</button>
     <button id="kill-chessboard">Kill Chessboard</button>
     <script src="controller.js"></script>
